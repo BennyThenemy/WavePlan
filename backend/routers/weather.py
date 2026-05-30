@@ -5,7 +5,7 @@ from bson import ObjectId
 from services.db import db
 from schemas.models import WeatherPatchPayload
 
-router = APIRouter()
+router = APIRouter(tags=["weather"])
 
 
 def serialize_doc(doc):

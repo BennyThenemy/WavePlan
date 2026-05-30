@@ -5,7 +5,7 @@ from pymongo.errors import DuplicateKeyError
 from services.db import db
 from services.ai import generate_and_save_summary
 
-router = APIRouter()
+router = APIRouter(tags=["ai"])
 
 
 @router.get("/summary")

@@ -1,5 +1,14 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
+
+
+class Beach(BaseModel):
+    name: str
+    city: str
+    latitude: float
+    longitude: float
+    good_wind_direction: str
+    active: Optional[bool] = True
 
 
 class HourData(BaseModel):

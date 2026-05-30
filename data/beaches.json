@@ -1,0 +1,210 @@
+[
+  {
+    "name": "Hilton Beach",
+    "city": "Tel Aviv",
+    "latitude": 32.0908,
+    "longitude": 34.7705,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Gordon Beach",
+    "city": "Tel Aviv",
+    "latitude": 32.0843,
+    "longitude": 34.7680,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Frishman Beach",
+    "city": "Tel Aviv",
+    "latitude": 32.0789,
+    "longitude": 34.7659,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Bograshov Beach",
+    "city": "Tel Aviv",
+    "latitude": 32.0758,
+    "longitude": 34.7651,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Jerusalem Beach",
+    "city": "Tel Aviv",
+    "latitude": 32.0719,
+    "longitude": 34.7639,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Banana Beach",
+    "city": "Tel Aviv",
+    "latitude": 32.0640,
+    "longitude": 34.7610,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Tel Baruch Beach",
+    "city": "Tel Aviv",
+    "latitude": 32.1235,
+    "longitude": 34.7920,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Acadia Beach",
+    "city": "Herzliya",
+    "latitude": 32.1646,
+    "longitude": 34.7958,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Sidna Ali Beach",
+    "city": "Herzliya",
+    "latitude": 32.1845,
+    "longitude": 34.8010,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Bat Yam Beach",
+    "city": "Bat Yam",
+    "latitude": 32.0151,
+    "longitude": 34.7385,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Rishon LeZion Beach",
+    "city": "Rishon LeZion",
+    "latitude": 31.9646,
+    "longitude": 34.7363,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Palmachim Beach",
+    "city": "Rishon LeZion",
+    "latitude": 31.9290,
+    "longitude": 34.6975,
+    "good_wind_direction": "SE",
+    "active": true
+  },
+  {
+    "name": "Lido Beach",
+    "city": "Ashdod",
+    "latitude": 31.8210,
+    "longitude": 34.6385,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Mei Ami Beach",
+    "city": "Ashdod",
+    "latitude": 31.7920,
+    "longitude": 34.6300,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Riviera Beach",
+    "city": "Ashdod",
+    "latitude": 31.8050,
+    "longitude": 34.6340,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Sironit Beach",
+    "city": "Netanya",
+    "latitude": 32.3215,
+    "longitude": 34.8505,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Poleg Beach",
+    "city": "Netanya",
+    "latitude": 32.2752,
+    "longitude": 34.8350,
+    "good_wind_direction": "SE",
+    "active": true
+  },
+  {
+    "name": "Argaman Beach",
+    "city": "Netanya",
+    "latitude": 32.3105,
+    "longitude": 34.8480,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Dado Beach",
+    "city": "Haifa",
+    "latitude": 32.8005,
+    "longitude": 34.9555,
+    "good_wind_direction": "W",
+    "active": true
+  },
+  {
+    "name": "Bat Galim Beach",
+    "city": "Haifa",
+    "latitude": 32.8270,
+    "longitude": 34.9870,
+    "good_wind_direction": "W",
+    "active": true
+  },
+  {
+    "name": "Carmel Beach",
+    "city": "Haifa",
+    "latitude": 32.8120,
+    "longitude": 34.9590,
+    "good_wind_direction": "W",
+    "active": true
+  },
+  {
+    "name": "Delila Beach",
+    "city": "Ashkelon",
+    "latitude": 31.6755,
+    "longitude": 34.5560,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Bar Kochba Beach",
+    "city": "Ashkelon",
+    "latitude": 31.6680,
+    "longitude": 34.5510,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Aqueduct Beach",
+    "city": "Caesarea",
+    "latitude": 32.5170,
+    "longitude": 34.8920,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Olga Beach",
+    "city": "Hadera",
+    "latitude": 32.4400,
+    "longitude": 34.8780,
+    "good_wind_direction": "E",
+    "active": true
+  },
+  {
+    "name": "Sokolov Beach",
+    "city": "Nahariya",
+    "latitude": 33.0085,
+    "longitude": 35.0905,
+    "good_wind_direction": "E",
+    "active": true
+  }
+]
