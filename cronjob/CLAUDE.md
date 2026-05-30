@@ -1,7 +1,7 @@
 # CLAUDE.md — Wave Plan Cron Job
 
 ## Overview
-The cron job is a standalone Python service that runs once daily at 05:00 Israel time (02:00 UTC).
+The cron job is a standalone Python service that runs once daily at 05:00 Israel time (02:00 UTC) and also in the first time the cron runs.
 
 **Its only job:**
 1. Fetch 7 days of hourly weather data from Open-Meteo for each active beach
@@ -32,19 +32,7 @@ cron/
 ---
 
 ## Beach List
-Hardcoded in `beaches.py`. To add a beach, add an entry here — the cron will automatically fetch and patch data for it.
-
-```python
-# beaches.py
-BEACHES = [
-    {"_id": "gordon-beach",   "name": "Gordon Beach",       "lat": 32.0853, "lng": 34.7692},
-    {"_id": "frishman-beach", "name": "Frishman Beach",     "lat": 32.0772, "lng": 34.7685},
-    {"_id": "hilton-beach",   "name": "Hilton Beach",       "lat": 32.0891, "lng": 34.7658},
-    {"_id": "banana-beach",   "name": "Banana Beach",       "lat": 32.0651, "lng": 34.7712},
-    {"_id": "ashdod-beach",   "name": "Ashdod Beach",       "lat": 31.7683, "lng": 34.6414},
-    {"_id": "rishon-beach",   "name": "Rishon LeZion Beach", "lat": 31.9730, "lng": 34.7290},
-]
-```
+API request to backend.
 
 ---
 
