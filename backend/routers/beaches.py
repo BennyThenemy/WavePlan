@@ -17,7 +17,7 @@ def serialize_doc(doc):
 async def get_beaches():
     beaches = await db.beaches.find(
         {"active": True},
-        {"name": 1, "city": 1}
+        {"name": 1, "city": 1, "latitude": 1, "longitude": 1}
     ).to_list(100)
     return [serialize_doc(b) for b in beaches]
 
