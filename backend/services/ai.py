@@ -1,7 +1,8 @@
 import json
 import os
-import anthropic
-from datetime import datetime
+from google import genai
+from datetime import datetime, timezone
+from bson import ObjectId
 
 from services.db import db
 from schemas.activity_schemas import ACTIVITY_SCHEMAS
@@ -42,28 +43,34 @@ Hourly weather data (24 hours):
 {json.dumps(hours, indent=2)}
 """
 
+client = genai.Client(
+    api_key=os.getenv("GEMINI_API_KEY"),
+    enterprise=False,
+    vertexai=False
+)
+
 
 async def generate_and_save_summary(beach_id: str, date: str, activity: str):
     try:
-        beach = await db.beaches.find_one({"_id": beach_id})
+        beach = await db.beaches.find_one({"_id": ObjectId(beach_id)})
         weather = await db.weather_data.find_one({"beach_id": beach_id, "date": date})
 
-        client = anthropic.AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-        response = await client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=500,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": build_user_prompt(beach, date, activity, weather["hours"])}]
+        if not beach or not weather:
+            raise ValueError(f"Missing beach or weather data for {beach_id}/{date}")
+
+        response = await client.aio.models.generate_content(
+            model=os.getenv("GEMINI_MODEL"),
+            contents=f"{SYSTEM_PROMPT}\n\n{build_user_prompt(beach, date, activity, weather['hours'])}"
         )
 
-        summary = json.loads(response.content[0].text)
+        summary = json.loads(response.text)
 
         await db.ai_summaries.update_one(
             {"beach_id": beach_id, "date": date, "activity": activity},
             {"$set": {
                 "status": "ready",
                 "summary": summary,
-                "generated_at": datetime.utcnow().isoformat()
+                "generated_at": datetime.now(timezone.utc).isoformat()
             }}
         )
     except Exception as e:

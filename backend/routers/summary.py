@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, BackgroundTasks
 from pymongo.errors import DuplicateKeyError
 
@@ -17,8 +17,11 @@ async def get_summary(beach_id: str, date: str, activity: str, background_tasks:
     if existing and existing["status"] == "ready":
         return {"status": "ready", "summary": existing["summary"]}
 
+    if existing and existing["status"] == "failed":
+        await col.delete_one({"_id": existing["_id"]})
+
     if existing and existing["status"] == "pending":
-        age = (datetime.utcnow() - datetime.fromisoformat(existing["created_at"])).seconds
+        age = (datetime.now(timezone.utc) - datetime.fromisoformat(existing["created_at"])).seconds
         if age < 60:
             return {"status": "pending"}
         await col.delete_one({"_id": existing["_id"]})
@@ -29,7 +32,7 @@ async def get_summary(beach_id: str, date: str, activity: str, background_tasks:
             "date": date,
             "activity": activity,
             "status": "pending",
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat()
         })
     except DuplicateKeyError:
         return {"status": "pending"}
