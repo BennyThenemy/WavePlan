@@ -1,5 +1,5 @@
-import WavePlan from "@/components/WavePlan";
+import BeachSelector from "@/components/BeachSelector";
 
 export default function Home() {
-  return <WavePlan />;
+  return <BeachSelector />;
 }
