@@ -1,5 +1,5 @@
-import WavePlan from "@/components/WavePlan";
+import HomePage from "@/components/HomePage";
 
 export default function Home() {
-  return <WavePlan />;
+  return <HomePage />;
 }

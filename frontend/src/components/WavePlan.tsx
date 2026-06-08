@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import * as I from "./Icons";
+import BeachSelector from "./BeachSelector";
 import { BEACHES, conditionsFor, HourRow, Metrics, AISummary } from "@/lib/data";
 import { makeT } from "@/lib/strings";
 
@@ -45,10 +46,8 @@ function Header({ beachIdx, setBeachIdx, lang, setLang, t }: {
   beachIdx: number; setBeachIdx: (i: number) => void;
   lang: string; setLang: (l: string) => void; t: TFn;
 }) {
-  const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [dark, setDark] = useState(false);
-  const beach = BEACHES[beachIdx];
 
   return (
     <header className="wp-header">
@@ -97,33 +96,7 @@ function Header({ beachIdx, setBeachIdx, lang, setLang, t }: {
           )}
         </div>
       </div>
-      <button className={"wp-beach-btn" + (open ? " is-open" : "")} onClick={() => setOpen((o) => !o)}>
-        <span className="wp-beach-pin"><I.Pin size={18} /></span>
-        <span className="wp-beach-text">
-          <span className="wp-beach-name">{beach.name[lang as "en" | "he"]}</span>
-          <span className="wp-beach-region">{beach.region[lang as "en" | "he"]}</span>
-        </span>
-        <span className={"wp-beach-caret" + (open ? " is-open" : "")}><I.Chevron size={16} /></span>
-      </button>
-      {open && (
-        <>
-          <div className="wp-scrim" onClick={() => setOpen(false)} />
-          <div className="wp-dropdown">
-            <div className="wp-dropdown-head">{t("chooseBeach")}</div>
-            {BEACHES.map((b, i) => (
-              <button key={b.id} className={"wp-dropdown-item" + (i === beachIdx ? " is-active" : "")}
-                onClick={() => { setBeachIdx(i); setOpen(false); }}>
-                <span className="wp-dd-pin"><I.Pin size={16} /></span>
-                <span className="wp-dd-text">
-                  <span className="wp-dd-name">{b.name[lang as "en" | "he"]}</span>
-                  <span className="wp-dd-region">{b.region[lang as "en" | "he"]}</span>
-                </span>
-                {i === beachIdx && <span className="wp-dd-check" />}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
+      <BeachSelector lang={lang} onSelect={setBeachIdx} currentIdx={beachIdx} />
     </header>
   );
 }
@@ -277,8 +250,8 @@ function HourlyTable({ hrs, t }: { hrs: HourRow[]; t: TFn }) {
 }
 
 /* App root */
-export default function WavePlan() {
-  const [beachIdx, setBeachIdx] = useState(0);
+export default function WavePlan({ initialBeachIdx }: { initialBeachIdx?: number } = {}) {
+  const [beachIdx, setBeachIdx] = useState(initialBeachIdx ?? 0);
   const [dayOffset, setDayOffset] = useState(0);
   const [activity, setActivity] = useState("surfing");
   const [lang, setLang] = useState("en");

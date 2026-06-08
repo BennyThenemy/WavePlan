@@ -3,6 +3,7 @@ const STRINGS: Record<string, Record<string, string>> = {
     tagline: "read the sea before you go",
     langBtn: "עברית",
     chooseBeach: "Choose a beach",
+    searchBeach: "Search or select a beach",
     menuTitle: "Menu",
     profileName: "Guest surfer",
     profileSub: "View profile",
@@ -12,6 +13,14 @@ const STRINGS: Record<string, Record<string, string>> = {
     today: "Today", tomorrow: "Tomorrow", yesterday: "Yesterday",
     wd_0: "Sunday", wd_1: "Monday", wd_2: "Tuesday", wd_3: "Wednesday",
     wd_4: "Thursday", wd_5: "Friday", wd_6: "Saturday",
+    wds_0: "Sun", wds_1: "Mon", wds_2: "Tue", wds_3: "Wed", wds_4: "Thu", wds_5: "Fri", wds_6: "Sat",
+
+    welcome: "Welcome!",
+    welcomeSub: "Pick a beach to read the sea — surf, SUP or a casual day by the water.",
+    weekTitle: "Waves & wind · next 7 days",
+    cmUnit: "cm",
+    ctaHint: "Need more details and an easy AI summary? Tap 'View more details'.",
+    viewForecast: "View more details",
 
     tab_surfing: "Surfing", tab_sup: "SUP", tab_casual: "Casual", tab_more: "More",
 
@@ -55,6 +64,7 @@ const STRINGS: Record<string, Record<string, string>> = {
     tagline: "קראו את הים לפני שיוצאים",
     langBtn: "EN",
     chooseBeach: "בחרו חוף",
+    searchBeach: "חפשו או בחרו חוף",
     menuTitle: "תפריט",
     profileName: "גולש אורח",
     profileSub: "הצגת פרופיל",
@@ -64,6 +74,14 @@ const STRINGS: Record<string, Record<string, string>> = {
     today: "היום", tomorrow: "מחר", yesterday: "אתמול",
     wd_0: "ראשון", wd_1: "שני", wd_2: "שלישי", wd_3: "רביעי",
     wd_4: "חמישי", wd_5: "שישי", wd_6: "שבת",
+    wds_0: "ראשון", wds_1: "שני", wds_2: "שלישי", wds_3: "רביעי", wds_4: "חמישי", wds_5: "שישי", wds_6: "שבת",
+
+    welcome: "!ברוכים הבאים",
+    welcomeSub: "בחרו חוף וקראו את הים — גלישה, סאפ או יום נינוח על החוף.",
+    weekTitle: "גלים ורוח · 7 הימים הבאים",
+    cmUnit: "סמ״ק",
+    ctaHint: "צריכים פרטים נוספים וסיכום קל של בינה מלאכותית? לחצו על 'צפו בפרטים נוספים'.",
+    viewForecast: "צפו בפרטים נוספים",
 
     tab_surfing: "גלישה", tab_sup: "סאפ", tab_casual: "חוף", tab_more: "עוד",
 

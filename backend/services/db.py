@@ -10,6 +10,10 @@ client = AsyncIOMotorClient(MONGODB_URI)
 db = client.get_default_database()
 
 
+def generate_slug(name: str) -> str:
+    return name.lower().replace(" ", "-")
+
+
 async def create_indexes():
     await db.weather_data.create_index([("beach_id", 1), ("date", 1)], unique=True)
     await db.weather_data.create_index([("date", 1)])
@@ -17,3 +21,13 @@ async def create_indexes():
         [("beach_id", 1), ("date", 1), ("activity", 1)],
         unique=True
     )
+
+
+async def migrate_beach_slugs():
+    beaches = await db.beaches.find({"slug": {"$exists": False}}).to_list(None)
+    for beach in beaches:
+        slug = generate_slug(beach["name"])
+        await db.beaches.update_one(
+            {"_id": beach["_id"]},
+            {"$set": {"slug": slug}}
+        )

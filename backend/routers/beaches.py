@@ -17,14 +17,14 @@ def serialize_doc(doc):
 async def get_beaches():
     beaches = await db.beaches.find(
         {"active": True},
-        {"name": 1, "city": 1, "latitude": 1, "longitude": 1}
+        {"name": 1, "city": 1, "latitude": 1, "longitude": 1, "slug": 1}
     ).to_list(100)
     return [serialize_doc(b) for b in beaches]
 
 
-@router.get("/beaches/{name}")
-async def get_beach_by_name(name: str):
-    doc = await db.beaches.find_one({"name": name})
+@router.get("/beaches/{slug}")
+async def get_beach_by_slug(slug: str):
+    doc = await db.beaches.find_one({"slug": slug})
     if not doc:
         raise HTTPException(status_code=404, detail="Beach not found")
     return serialize_doc(doc)

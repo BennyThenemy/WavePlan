@@ -14,7 +14,7 @@ Wave Plan backend is a **FastAPI** application that:
 ## Tech Stack
 - **Framework:** FastAPI (Python 3.12)
 - **DB driver:** Motor (async MongoDB driver)
-- **AI:** Anthropic Python SDK
+- **AI:** Gemini API key
 - **Server:** Uvicorn
 
 ---
@@ -278,41 +278,6 @@ Hourly weather data (24 hours):
 """
 ```
 
-### AI Call
-```python
-async def generate_and_save_summary(beach_id: str, date: str, activity: str):
-    try:
-        beach = await db.beaches.find_one({"_id": beach_id})
-        weather = await db.weather_data.find_one({"beach_id": beach_id, "date": date})
-
-        client = anthropic.AsyncAnthropic()
-        response = await client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=500,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": build_user_prompt(beach, date, activity, weather["hours"])}]
-        )
-
-        summary = json.loads(response.content[0].text)
-
-        await db.ai_summaries.update_one(
-            {"beach_id": beach_id, "date": date, "activity": activity},
-            {"$set": {
-                "status": "ready",
-                "summary": summary,
-                "generated_at": datetime.utcnow().isoformat()
-            }}
-        )
-    except Exception as e:
-        await db.ai_summaries.update_one(
-            {"beach_id": beach_id, "date": date, "activity": activity},
-            {"$set": {"status": "failed"}}
-        )
-        raise e
-```
-
----
-
 ## MongoDB Indexes
 Create on first startup:
 ```python
@@ -326,19 +291,3 @@ async def create_indexes():
 ```
 
 ---
-
-## Requirements
-```
-fastapi==0.111.0
-uvicorn==0.30.1
-motor==3.4.0
-anthropic==0.28.0
-pydantic==2.7.1
-python-dotenv==1.0.1
-```
-
-## Environment Variables
-```env
-MONGODB_URI=mongodb://mongodb:27017/waveplan
-ANTHROPIC_API_KEY=sk-ant-your-key-here
-```
