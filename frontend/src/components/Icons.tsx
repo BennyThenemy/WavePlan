@@ -38,3 +38,5 @@ export const Star = (p: IconProps) => (<S {...p}><path d="M12 4.5 14 9l4.8.5-3.6
 export const Board = (p: IconProps) => (<S {...p}><path d="M5 19C5 9 9 5 19 5c0 10-4 14-14 14Z" /><path d="M9 15l6-6" /></S>);
 export const Alert = (p: IconProps) => (<S {...p}><path d="M12 4 2.5 20h19L12 4Z" /><path d="M12 10v4.5" /><circle cx="12" cy="17.6" r="0.6" fill="currentColor" stroke="none" /></S>);
 export const Sparkle = (p: IconProps) => (<S {...p}><path d="M12 4c.6 3.4 1.6 4.4 5 5-3.4.6-4.4 1.6-5 5-.6-3.4-1.6-4.4-5-5 3.4-.6 4.4-1.6 5-5Z" /><path d="M18.5 14.5c.3 1.5.8 2 2.3 2.3-1.5.3-2 .8-2.3 2.3-.3-1.5-.8-2-2.3-2.3 1.5-.3 2-.8 2.3-2.3Z" /></S>);
+export const NavArrow = (p: IconProps) => (<S {...p}><path d="M12 3 20 18 12 15l-8 3 8-15Z" fill="currentColor" stroke="none" /></S>);
+export const Search = (p: IconProps) => (<S {...p}><circle cx="11" cy="11" r="6.5" /><path d="m16.5 16.5 4 4" /></S>);

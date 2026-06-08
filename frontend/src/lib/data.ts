@@ -5,6 +5,8 @@ export const BEACHES = [
   { id: "lido", name: { en: "Ashdod · Lido", he: "אשדוד · לידו" }, region: { en: "Southern coast", he: "חוף הדרום" }, bias: { swell: -0.15, wind: -2 } },
 ];
 
+export const BASE = new Date(2026, 4, 29);
+
 const SWELL_DIRS = ["NW", "WNW", "W", "WSW", "SW"] as const;
 const WIND_DIRS = ["NW", "N", "NE", "W", "SW", "S"] as const;
 
@@ -151,4 +153,45 @@ export function conditionsFor(beachIdx: number, dayOffset: number, activity: str
   const m = metrics(beachIdx, dayOffset, hrs);
   const ai = summarize(activity, m, hrs);
   return { hrs, m, ai };
+}
+
+export interface DayParts {
+  offset: number;
+  slashLabel: string;
+  weekday: number;
+  waveCm: number;
+  windDir: string;
+  windDeg: number;
+}
+
+const WIND_DEG: Record<string, number> = { N: 0, NE: 45, E: 90, SE: 135, S: 180, SW: 225, W: 270, NW: 315 };
+
+function dayParts(offset: number) {
+  const d = new Date(BASE);
+  d.setDate(d.getDate() + offset);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  return {
+    offset,
+    slashLabel: dd + "/" + mm,
+    weekday: d.getDay(),
+  };
+}
+
+export function weekly(beachIdx: number): DayParts[] {
+  const out: DayParts[] = [];
+  for (let o = 0; o < 7; o++) {
+    const hrs = hourly(beachIdx, o);
+    const m = metrics(beachIdx, o, hrs);
+    const p = dayParts(o);
+    out.push({
+      offset: p.offset,
+      slashLabel: p.slashLabel,
+      weekday: p.weekday,
+      waveCm: Math.round(m.swellHeight * 100),
+      windDir: m.windDir,
+      windDeg: (WIND_DEG[m.windDir] ?? 0) + 180,
+    });
+  }
+  return out;
 }
