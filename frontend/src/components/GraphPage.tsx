@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { BEACHES } from "@/lib/data";
 import { makeT } from "@/lib/strings";
@@ -10,6 +11,7 @@ import WaveGraph from "./WaveGraph";
 
 export default function GraphPage({ beachIdx, slug }: { beachIdx: number; slug: string }) {
   const [lang, setLang] = useState("en");
+  const router = useRouter();
 
   useEffect(() => {
     const stored = localStorage.getItem("wp-lang");
@@ -21,7 +23,6 @@ export default function GraphPage({ beachIdx, slug }: { beachIdx: number; slug: 
   }, [lang]);
 
   const t = makeT(lang);
-  const beach = BEACHES[beachIdx];
 
   return (
     <div className="wp-shell">
@@ -38,7 +39,7 @@ export default function GraphPage({ beachIdx, slug }: { beachIdx: number; slug: 
               </button>
             </div>
           </div>
-          <BeachSelector lang={lang} onSelect={(idx) => {}} currentIdx={beachIdx} />
+          <BeachSelector lang={lang} onSelect={(s) => router.push(`/${s}`)} currentSlug={slug} />
         </header>
 
         <main className="wp-home-main">

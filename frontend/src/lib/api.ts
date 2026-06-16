@@ -1,5 +1,20 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+export interface BeachAPI {
+  _id: string;
+  name: string;
+  city: string;
+  latitude?: number;
+  longitude?: number;
+  slug: string;
+}
+
+export async function fetchBeaches(): Promise<BeachAPI[]> {
+  const res = await fetch(`${API_BASE}/beaches`);
+  if (!res.ok) throw new Error("Failed to fetch beaches");
+  return res.json();
+}
+
 export interface HourAPI {
   time: string;
   wave_height: number;

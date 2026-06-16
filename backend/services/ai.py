@@ -2,8 +2,6 @@ import json
 import os
 from google import genai
 from datetime import datetime, timezone
-from bson import ObjectId
-
 from services.db import db
 from schemas.activity_schemas import ACTIVITY_SCHEMAS
 
@@ -52,7 +50,7 @@ client = genai.Client(
 
 async def generate_and_save_summary(beach_id: str, date: str, activity: str):
     try:
-        beach = await db.beaches.find_one({"_id": ObjectId(beach_id)})
+        beach = await db.beaches.find_one({"slug": beach_id})
         weather = await db.weather_data.find_one({"beach_id": beach_id, "date": date})
 
         if not beach or not weather:

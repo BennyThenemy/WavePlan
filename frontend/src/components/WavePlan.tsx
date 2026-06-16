@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import * as I from "./Icons";
 import BeachSelector from "./BeachSelector";
-import { BEACHES, HourRow, Metrics } from "@/lib/data";
+import { HourRow, Metrics } from "@/lib/data";
 import { makeT } from "@/lib/strings";
 import { fetchWeather, fetchSummary, WeatherAPI, HourAPI, DaytimeMetrics, SummaryData } from "@/lib/api";
 
@@ -76,8 +76,8 @@ function mapMetrics(hours: HourAPI[], daytime: DaytimeMetrics | null): Metrics {
 }
 
 /* Header */
-function Header({ beachIdx, setBeachIdx, lang, setLang, t }: {
-  beachIdx: number; setBeachIdx: (i: number) => void;
+function Header({ beachSlug, setBeachSlug, lang, setLang, t }: {
+  beachSlug: string; setBeachSlug: (s: string) => void;
   lang: string; setLang: (l: string) => void; t: TFn;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -130,7 +130,7 @@ function Header({ beachIdx, setBeachIdx, lang, setLang, t }: {
           )}
         </div>
       </div>
-      <BeachSelector lang={lang} onSelect={setBeachIdx} currentIdx={beachIdx} />
+      <BeachSelector lang={lang} onSelect={setBeachSlug} currentSlug={beachSlug} />
     </header>
   );
 }
@@ -312,8 +312,8 @@ function HourlyTable({ hrs, t }: { hrs: HourRow[]; t: TFn }) {
 }
 
 /* App root */
-export default function WavePlan({ initialBeachIdx }: { initialBeachIdx?: number } = {}) {
-  const [beachIdx, setBeachIdx] = useState(initialBeachIdx ?? 0);
+export default function WavePlan({ initialSlug }: { initialSlug?: string } = {}) {
+  const [beachSlug, setBeachSlug] = useState(initialSlug ?? "");
   const [dayOffset, setDayOffset] = useState(0);
   const [activity, setActivity] = useState("surfing");
   const [lang, setLang] = useState("en");
@@ -335,21 +335,22 @@ export default function WavePlan({ initialBeachIdx }: { initialBeachIdx?: number
     localStorage.setItem("wp-lang", lang);
   }, [lang]);
 
-  const beachId = BEACHES[beachIdx].id;
   const di = dateInfo(dayOffset);
 
   useEffect(() => {
+    if (!beachSlug) return;
     let cancelled = false;
     setWeatherLoading(true);
     setWeatherError(false);
     setWeather(null);
-    fetchWeather(beachId, di.isoDate)
+    fetchWeather(beachSlug, di.isoDate)
       .then((data) => { if (!cancelled) { setWeather(data); setWeatherLoading(false); } })
       .catch(() => { if (!cancelled) { setWeatherError(true); setWeatherLoading(false); } });
     return () => { cancelled = true; };
-  }, [beachId, di.isoDate]);
+  }, [beachSlug, di.isoDate]);
 
   useEffect(() => {
+    if (!beachSlug) return;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
 
@@ -357,7 +358,7 @@ export default function WavePlan({ initialBeachIdx }: { initialBeachIdx?: number
     setSummaryStatus("idle");
 
     function poll() {
-      fetchSummary(beachId, di.isoDate, activity)
+      fetchSummary(beachSlug, di.isoDate, activity)
         .then((res) => {
           if (cancelled) return;
           if (res.status === "ready") {
@@ -375,7 +376,7 @@ export default function WavePlan({ initialBeachIdx }: { initialBeachIdx?: number
 
     poll();
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [beachId, di.isoDate, activity, summaryRetry]);
+  }, [beachSlug, di.isoDate, activity, summaryRetry]);
 
   const t = makeT(lang);
   const hrs: HourRow[] = weather ? mapHours(weather.hours) : [];
@@ -391,7 +392,7 @@ export default function WavePlan({ initialBeachIdx }: { initialBeachIdx?: number
     <div className="wp-shell">
       <div className={"wp-app" + (lang === "he" ? " is-rtl" : "")} style={appStyle}
         dir={lang === "he" ? "rtl" : "ltr"} lang={lang}>
-        <Header beachIdx={beachIdx} setBeachIdx={setBeachIdx} lang={lang} setLang={setLang} t={t} />
+        <Header beachSlug={beachSlug} setBeachSlug={setBeachSlug} lang={lang} setLang={setLang} t={t} />
         <DateNav dayOffset={dayOffset} setDayOffset={setDayOffset} t={t} />
         <Tabs activity={activity} setActivity={setActivity} t={t} />
         <main className="wp-main">

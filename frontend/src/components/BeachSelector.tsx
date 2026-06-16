@@ -1,29 +1,33 @@
 "use client";
 
-import { useState } from "react";
-import { BEACHES } from "@/lib/data";
+import { useState, useEffect } from "react";
 import { makeT } from "@/lib/strings";
+import { fetchBeaches, BeachAPI } from "@/lib/api";
 import * as I from "./Icons";
 
 export default function BeachSelector({
   lang,
   onSelect,
-  currentIdx
+  currentSlug,
 }: {
   lang: string;
-  onSelect: (idx: number) => void;
-  currentIdx?: number;
+  onSelect: (slug: string) => void;
+  currentSlug?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [beaches, setBeaches] = useState<BeachAPI[]>([]);
   const t = makeT(lang);
-  const beach = currentIdx !== undefined ? BEACHES[currentIdx] : null;
 
-  const filtered = BEACHES.filter((b) => {
-    const query = search.toLowerCase();
-    const name = b.name[lang as "en" | "he"].toLowerCase();
-    const region = b.region[lang as "en" | "he"].toLowerCase();
-    return name.includes(query) || region.includes(query);
+  useEffect(() => {
+    fetchBeaches().then(setBeaches).catch(() => {});
+  }, []);
+
+  const current = beaches.find((b) => b.slug === currentSlug) ?? null;
+
+  const filtered = beaches.filter((b) => {
+    const q = search.toLowerCase();
+    return b.name.toLowerCase().includes(q) || b.city.toLowerCase().includes(q);
   });
 
   return (
@@ -31,15 +35,13 @@ export default function BeachSelector({
       <button className={"wp-beach-btn" + (open ? " is-open" : "")} onClick={() => setOpen((o) => !o)}>
         <span className="wp-beach-pin"><I.Pin size={18} /></span>
         <span className="wp-beach-text">
-          {beach ? (
+          {current ? (
             <>
-              <span className="wp-beach-name">{beach.name[lang as "en" | "he"]}</span>
-              <span className="wp-beach-region">{beach.region[lang as "en" | "he"]}</span>
+              <span className="wp-beach-name">{current.name}</span>
+              <span className="wp-beach-region">{current.city}</span>
             </>
           ) : (
-            <>
-              <span className="wp-beach-name">{t("chooseBeach")}</span>
-            </>
+            <span className="wp-beach-name">{t("chooseBeach")}</span>
           )}
         </span>
         <span className={"wp-beach-caret" + (open ? " is-open" : "")}><I.Chevron size={16} /></span>
@@ -60,19 +62,21 @@ export default function BeachSelector({
                 autoFocus
               />
             </div>
-            {filtered.map((b) => {
-              const idx = BEACHES.indexOf(b);
-              return (
-                <button key={b.id} className="wp-dropdown-item"
-                  onClick={() => { onSelect(idx); setOpen(false); setSearch(""); }}>
-                  <span className="wp-dd-pin"><I.Pin size={16} /></span>
-                  <span className="wp-dd-text">
-                    <span className="wp-dd-name">{b.name[lang as "en" | "he"]}</span>
-                    <span className="wp-dd-region">{b.region[lang as "en" | "he"]}</span>
-                  </span>
-                </button>
-              );
-            })}
+            {beaches.length === 0 && (
+              <div className="wp-dropdown-item" style={{ justifyContent: "center", opacity: 0.5 }}>
+                <span className="wp-spinner" />
+              </div>
+            )}
+            {filtered.map((b) => (
+              <button key={b.slug} className="wp-dropdown-item"
+                onClick={() => { onSelect(b.slug); setOpen(false); setSearch(""); }}>
+                <span className="wp-dd-pin"><I.Pin size={16} /></span>
+                <span className="wp-dd-text">
+                  <span className="wp-dd-name">{b.name}</span>
+                  <span className="wp-dd-region">{b.city}</span>
+                </span>
+              </button>
+            ))}
           </div>
         </>
       )}

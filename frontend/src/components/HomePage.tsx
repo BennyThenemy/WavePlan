@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BEACHES } from "@/lib/data";
 import { makeT } from "@/lib/strings";
 import * as I from "./Icons";
 import BeachSelector from "./BeachSelector";
 
 export default function HomePage() {
-  const [beachIdx, setBeachIdx] = useState<number | null>(null);
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [lang, setLang] = useState("en");
   const router = useRouter();
 
@@ -22,10 +21,10 @@ export default function HomePage() {
   }, [lang]);
 
   useEffect(() => {
-    if (beachIdx !== null) {
-      router.push(`/${BEACHES[beachIdx].id}`);
+    if (selectedSlug) {
+      router.push(`/${selectedSlug}`);
     }
-  }, [beachIdx, router]);
+  }, [selectedSlug, router]);
 
   const t = makeT(lang);
 
@@ -44,7 +43,7 @@ export default function HomePage() {
               </button>
             </div>
           </div>
-          <BeachSelector lang={lang} onSelect={setBeachIdx} currentIdx={beachIdx ?? undefined} />
+          <BeachSelector lang={lang} onSelect={setSelectedSlug} currentSlug={selectedSlug ?? undefined} />
         </header>
 
         <main className="wp-home-main is-welcome">
