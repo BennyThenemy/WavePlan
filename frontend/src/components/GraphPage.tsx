@@ -9,7 +9,8 @@ import * as I from "./Icons";
 import BeachSelector from "./BeachSelector";
 import WaveGraph from "./WaveGraph";
 
-export default function GraphPage({ beachIdx, slug }: { beachIdx: number; slug: string }) {
+export default function GraphPage({ slug }: { slug: string }) {
+  const beachIdx = Math.max(0, BEACHES.findIndex((b) => b.id === slug));
   const [lang, setLang] = useState("en");
   const router = useRouter();
 
