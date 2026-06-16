@@ -6,7 +6,7 @@ ACTIVITY_SCHEMAS = {
         "wind_direction": {"good": "offshore", "bad": "onshore"},
         "notes": "Offshore wind for Tel Aviv beaches is W. Longer swell period = cleaner waves. Classify surfers as Beginner / Intermediate / Advanced based on conditions."
     },
-    "supping": {
+    "sup": {
         "wave_height_m": {"ideal": [0.2, 0.6], "acceptable": [0.1, 0.8], "bad_above": 1.0},
         "wind_speed_kmh": {"ideal": [0, 20], "acceptable": [20, 30], "bad_above": 30},
         "notes": "Wind is the primary danger for SUP. Explicitly warn when wind_speed > 25 km/h — strong onshore wind can push paddlers out to sea."
