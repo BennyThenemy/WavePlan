@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import * as I from "./Icons";
 import BeachSelector from "./BeachSelector";
-import { BEACHES, conditionsFor, HourRow, Metrics, AISummary } from "@/lib/data";
+import { BEACHES, HourRow, Metrics } from "@/lib/data";
 import { makeT } from "@/lib/strings";
+import { fetchWeather, fetchSummary, WeatherAPI, HourAPI, DaytimeMetrics, SummaryData } from "@/lib/api";
 
 type TFn = ReturnType<typeof makeT>;
 
@@ -15,14 +16,13 @@ const ACTIVITIES = [
   { id: "more", key: "tab_more", Icon: I.Grid, locked: true },
 ];
 
-const BASE = new Date(2026, 4, 29);
-
 function dateInfo(offset: number) {
-  const d = new Date(BASE);
+  const d = new Date();
   d.setDate(d.getDate() + offset);
   return {
     label: d.getDate() + "." + (d.getMonth() + 1) + "." + String(d.getFullYear()).slice(2),
     weekday: d.getDay(),
+    isoDate: d.toISOString().split("T")[0],
   };
 }
 
@@ -39,6 +39,40 @@ function uvKey(uv: number) {
   if (uv <= 7) return "uv_high";
   if (uv <= 10) return "uv_veryhigh";
   return "uv_extreme";
+}
+
+function mapHours(hours: HourAPI[]): HourRow[] {
+  return hours
+    .filter((h) => parseInt(h.time.split(":")[0]) % 3 === 0)
+    .map((h) => ({
+      time: h.time,
+      hour: parseInt(h.time.split(":")[0]),
+      wave: h.wave_height,
+      period: h.swell_period,
+      swellDir: h.swell_direction,
+      wind: h.wind_speed,
+      windDir: h.wind_direction,
+    }));
+}
+
+function mapMetrics(hours: HourAPI[], daytime: DaytimeMetrics | null): Metrics {
+  const day = hours.filter((h) => {
+    const hr = parseInt(h.time.split(":")[0]);
+    return hr >= 6 && hr <= 18;
+  });
+  const n = day.length || 1;
+  const mid = day[Math.floor(day.length / 2)];
+
+  return {
+    swellHeight: Math.round((day.reduce((s, h) => s + h.wave_height, 0) / n) * 10) / 10,
+    swellPeriod: Math.round(day.reduce((s, h) => s + h.swell_period, 0) / n),
+    windSpeed: daytime ? Math.round(daytime.wind_speed) : Math.round(day.reduce((s, h) => s + h.wind_speed, 0) / n),
+    windDir: mid?.wind_direction || "W",
+    airTemp: daytime ? Math.round(daytime.air_temp) : Math.round(day.reduce((s, h) => s + h.air_temp, 0) / n),
+    waterTemp: daytime ? Math.round(daytime.water_temp) : Math.round(day.reduce((s, h) => s + h.water_temp, 0) / n),
+    uv: daytime ? Math.round(daytime.uv_index) : Math.round(day.reduce((s, h) => s + h.uv_index, 0) / n),
+    swellDir: mid?.swell_direction || "NW",
+  };
 }
 
 /* Header */
@@ -106,8 +140,8 @@ function DateNav({ dayOffset, setDayOffset, t }: { dayOffset: number; setDayOffs
   const { label } = dateInfo(dayOffset);
   return (
     <div className="wp-datenav">
-      <button className="wp-date-arrow wp-date-prev" onClick={() => setDayOffset((d) => Math.max(-1, d - 1))}
-        disabled={dayOffset <= -1} aria-label="Previous day">
+      <button className="wp-date-arrow wp-date-prev" onClick={() => setDayOffset((d) => Math.max(0, d - 1))}
+        disabled={dayOffset <= 0} aria-label="Previous day">
         <I.Chevron size={22} />
       </button>
       <div className="wp-date-center">
@@ -143,27 +177,55 @@ function Tabs({ activity, setActivity, t }: { activity: string; setActivity: (a:
 }
 
 /* AI Summary card */
-function SummaryCard({ ai, activity, t }: { ai: AISummary; activity: string; t: TFn }) {
-  const join = ai.bestFor.map((c) => t("lvl_" + c)).join(", ");
-  const rows: { Icon: React.ComponentType<{ size?: number }>; label: string; value: string; warn?: boolean }[] = [
-    { Icon: I.Star, label: t("bestFor"), value: join },
-  ];
-  if (activity === "surfing" && ai.board) {
-    rows.push({ Icon: I.Board, label: t("board"), value: ai.board.map((c) => t("brd_" + c)).join(", ") });
-  }
-  rows.push({ Icon: I.Clock, label: t("bestWindow"), value: ai.window });
-  if (ai.warning) {
-    rows.push({ Icon: I.Alert, label: t("warning"), value: t("warn_" + ai.warning.key, { t: ai.warning.time }), warn: true });
+function SummaryCard({ data, status, activity, onRetry, t }: {
+  data: SummaryData | null;
+  status: "idle" | "pending" | "ready" | "error";
+  activity: string;
+  onRetry: () => void;
+  t: TFn;
+}) {
+  const head = (
+    <div className="wp-summary-head">
+      <span className="wp-summary-spark"><I.Sparkle size={16} /></span>
+      <span>{t("summaryHead")}</span>
+    </div>
+  );
+
+  if (status === "idle" || status === "pending") {
+    return (
+      <section className="wp-card wp-summary">
+        {head}
+        <div className="wp-summary-loading">
+          <span className="wp-spinner" />
+        </div>
+      </section>
+    );
   }
 
-  const text = t("txt_" + ai.text.key) + (ai.text.period ? t("txt_period") : "");
+  if (status === "error" || !data) {
+    return (
+      <section className="wp-card wp-summary">
+        {head}
+        <p className="wp-summary-err">Could not load summary.</p>
+        <button className="wp-retry-btn" onClick={onRetry}>Retry</button>
+      </section>
+    );
+  }
+
+  const rows: { Icon: React.ComponentType<{ size?: number }>; label: string; value: string; warn?: boolean }[] = [
+    { Icon: I.Star, label: t("bestFor"), value: data.best_for.join(", ") },
+  ];
+  if (activity === "surfing" && data.board) {
+    rows.push({ Icon: I.Board, label: t("board"), value: data.board });
+  }
+  rows.push({ Icon: I.Clock, label: t("bestWindow"), value: data.best_window });
+  if (data.warning) {
+    rows.push({ Icon: I.Alert, label: t("warning"), value: data.warning, warn: true });
+  }
 
   return (
     <section className="wp-card wp-summary">
-      <div className="wp-summary-head">
-        <span className="wp-summary-spark"><I.Sparkle size={16} /></span>
-        <span>{t("summaryHead")}</span>
-      </div>
+      {head}
       <dl className="wp-summary-rows">
         {rows.map((r, i) => (
           <div key={i} className={"wp-summary-row" + (r.warn ? " is-warn" : "")}>
@@ -172,7 +234,7 @@ function SummaryCard({ ai, activity, t }: { ai: AISummary; activity: string; t: 
           </div>
         ))}
       </dl>
-      <p className="wp-summary-text">{text}</p>
+      <p className="wp-summary-text">{data.free_text}</p>
     </section>
   );
 }
@@ -256,6 +318,14 @@ export default function WavePlan({ initialBeachIdx }: { initialBeachIdx?: number
   const [activity, setActivity] = useState("surfing");
   const [lang, setLang] = useState("en");
 
+  const [weather, setWeather] = useState<WeatherAPI | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [weatherError, setWeatherError] = useState(false);
+
+  const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
+  const [summaryStatus, setSummaryStatus] = useState<"idle" | "pending" | "ready" | "error">("idle");
+  const [summaryRetry, setSummaryRetry] = useState(0);
+
   useEffect(() => {
     const stored = localStorage.getItem("wp-lang");
     if (stored) setLang(stored);
@@ -265,9 +335,51 @@ export default function WavePlan({ initialBeachIdx }: { initialBeachIdx?: number
     localStorage.setItem("wp-lang", lang);
   }, [lang]);
 
-  const t = makeT(lang);
-  const { hrs, m, ai } = conditionsFor(beachIdx, dayOffset, activity);
+  const beachId = BEACHES[beachIdx].id;
   const di = dateInfo(dayOffset);
+
+  useEffect(() => {
+    let cancelled = false;
+    setWeatherLoading(true);
+    setWeatherError(false);
+    setWeather(null);
+    fetchWeather(beachId, di.isoDate)
+      .then((data) => { if (!cancelled) { setWeather(data); setWeatherLoading(false); } })
+      .catch(() => { if (!cancelled) { setWeatherError(true); setWeatherLoading(false); } });
+    return () => { cancelled = true; };
+  }, [beachId, di.isoDate]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+
+    setSummaryData(null);
+    setSummaryStatus("idle");
+
+    function poll() {
+      fetchSummary(beachId, di.isoDate, activity)
+        .then((res) => {
+          if (cancelled) return;
+          if (res.status === "ready") {
+            setSummaryData(res.summary);
+            setSummaryStatus("ready");
+          } else if (res.status === "pending") {
+            setSummaryStatus("pending");
+            timer = setTimeout(poll, 5000);
+          } else {
+            setSummaryStatus("error");
+          }
+        })
+        .catch(() => { if (!cancelled) setSummaryStatus("error"); });
+    }
+
+    poll();
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [beachId, di.isoDate, activity, summaryRetry]);
+
+  const t = makeT(lang);
+  const hrs: HourRow[] = weather ? mapHours(weather.hours) : [];
+  const m: Metrics | null = weather ? mapMetrics(weather.hours, weather.daytime_metrics) : null;
 
   const appStyle = {
     "--radius": "18px",
@@ -283,9 +395,25 @@ export default function WavePlan({ initialBeachIdx }: { initialBeachIdx?: number
         <DateNav dayOffset={dayOffset} setDayOffset={setDayOffset} t={t} />
         <Tabs activity={activity} setActivity={setActivity} t={t} />
         <main className="wp-main">
-          <SummaryCard ai={ai} activity={activity} t={t} />
-          <MetricsRow m={m} t={t} />
-          <HourlyTable hrs={hrs} t={t} />
+          <SummaryCard
+            data={summaryData}
+            status={summaryStatus}
+            activity={activity}
+            onRetry={() => setSummaryRetry((r) => r + 1)}
+            t={t}
+          />
+          {weatherLoading && (
+            <div className="wp-loading-state">
+              <span className="wp-spinner" />
+            </div>
+          )}
+          {weatherError && (
+            <div className="wp-error-state">
+              No forecast data for this date.
+            </div>
+          )}
+          {m && <MetricsRow m={m} t={t} />}
+          {hrs.length > 0 && <HourlyTable hrs={hrs} t={t} />}
         </main>
         <footer className="wp-footer">
           {t("footer", { wd: t("wd_" + di.weekday), date: di.label })}
