@@ -24,7 +24,7 @@ const STRINGS: Record<string, Record<string, string>> = {
 
     tab_surfing: "Surfing", tab_sup: "SUP", tab_casual: "Casual", tab_more: "More",
 
-    summaryHead: "Wave Plan read",
+    summaryHead: "AI Wave Plan reader",
     bestFor: "Best for", board: "Board", bestWindow: "Best window", warning: "Warning",
 
     lvl_beginners: "Beginners", lvl_intermediate: "Intermediate", lvl_advanced: "Advanced",

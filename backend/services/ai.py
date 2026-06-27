@@ -61,7 +61,16 @@ async def generate_and_save_summary(beach_id: str, date: str, activity: str):
             contents=f"{SYSTEM_PROMPT}\n\n{build_user_prompt(beach, date, activity, weather['hours'])}"
         )
 
-        summary = json.loads(response.text)
+        raw = (response.text or "").strip()
+        if not raw:
+            raise ValueError(f"Empty response from Gemini for {beach_id}/{date}/{activity}")
+        # Strip markdown fences if model ignored the prompt instruction
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+            raw = raw.strip()
+        summary = json.loads(raw)
 
         await db.ai_summaries.update_one(
             {"beach_id": beach_id, "date": date, "activity": activity},

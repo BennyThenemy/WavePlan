@@ -20,7 +20,7 @@ async def fetch_beaches():
             # Transform API response to match our internal format
             return [
                 {
-                    "_id": beach.get("_id"),
+                    "_id": beach.get("slug"),
                     "name": beach.get("name"),
                     "lat": beach.get("latitude"),
                     "lng": beach.get("longitude"),
