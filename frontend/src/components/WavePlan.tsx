@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import * as I from "./Icons";
 import BeachSelector from "./BeachSelector";
+import WaveLoader from "./WaveLoader";
 import { HourRow, Metrics } from "@/lib/data";
 import { makeT } from "@/lib/strings";
 import { fetchWeather, fetchSummary, WeatherAPI, HourAPI, DaytimeMetrics, SummaryData } from "@/lib/api";
@@ -195,9 +196,7 @@ function SummaryCard({ data, status, activity, onRetry, t }: {
     return (
       <section className="wp-card wp-summary">
         {head}
-        <div className="wp-summary-loading">
-          <span className="wp-spinner" />
-        </div>
+        <WaveLoader compact />
       </section>
     );
   }
@@ -319,7 +318,7 @@ export default function WavePlan({ initialSlug }: { initialSlug?: string } = {})
   const [lang, setLang] = useState("en");
 
   const [weather, setWeather] = useState<WeatherAPI | null>(null);
-  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [weatherLoading, setWeatherLoading] = useState(!!initialSlug);
   const [weatherError, setWeatherError] = useState(false);
 
   const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
@@ -388,10 +387,22 @@ export default function WavePlan({ initialSlug }: { initialSlug?: string } = {})
     "--gap": "18px",
   } as React.CSSProperties;
 
+  const appClass = "wp-app" + (lang === "he" ? " is-rtl" : "");
+  const appProps = { style: appStyle, dir: lang === "he" ? "rtl" : "ltr", lang } as React.HTMLAttributes<HTMLDivElement>;
+
+  if (beachSlug && weatherLoading) {
+    return (
+      <div className="wp-shell">
+        <div className={appClass} {...appProps}>
+          <WaveLoader />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="wp-shell">
-      <div className={"wp-app" + (lang === "he" ? " is-rtl" : "")} style={appStyle}
-        dir={lang === "he" ? "rtl" : "ltr"} lang={lang}>
+      <div className={appClass} {...appProps}>
         <Header beachSlug={beachSlug} setBeachSlug={setBeachSlug} lang={lang} setLang={setLang} t={t} />
         <DateNav dayOffset={dayOffset} setDayOffset={setDayOffset} t={t} />
         <Tabs activity={activity} setActivity={setActivity} t={t} />
@@ -403,11 +414,6 @@ export default function WavePlan({ initialSlug }: { initialSlug?: string } = {})
             onRetry={() => setSummaryRetry((r) => r + 1)}
             t={t}
           />
-          {weatherLoading && (
-            <div className="wp-loading-state">
-              <span className="wp-spinner" />
-            </div>
-          )}
           {weatherError && (
             <div className="wp-error-state">
               No forecast data for this date.
